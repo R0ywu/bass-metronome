@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { audioEngine } from '../audio/AudioEngine'
 import { STATIC_PATTERNS, makeClickPattern } from '../data/presetPatterns'
+import { useCustomPatternStore } from './customPatterns'
 import type { Pattern } from '../audio/types'
 
 export const MIN_BPM = 30
@@ -19,12 +20,17 @@ export const useMetronomeStore = defineStore('metronome', () => {
   const currentPatternId = ref<string>('click')
   const clickBeatsPerBar = ref(4)
 
+  const customStore = useCustomPatternStore()
+
   const currentPattern = computed<Pattern>(() => {
     if (currentPatternId.value === 'click') {
       return makeClickPattern(clickBeatsPerBar.value)
     }
-    const found = STATIC_PATTERNS.find((p) => p.id === currentPatternId.value)
-    return found ?? makeClickPattern(clickBeatsPerBar.value)
+    const preset = STATIC_PATTERNS.find((p) => p.id === currentPatternId.value)
+    if (preset) return preset
+    const custom = customStore.find(currentPatternId.value)
+    if (custom) return custom
+    return makeClickPattern(clickBeatsPerBar.value)
   })
 
   const timeSignature = computed<TimeSignature>(() => currentPattern.value.timeSignature)
@@ -55,12 +61,20 @@ export const useMetronomeStore = defineStore('metronome', () => {
     currentStep.value = -1
   }
 
+  /** Delete a custom pattern; if it was active, fall back to Click. */
+  function removeCustomPattern(id: string): void {
+    customStore.remove(id)
+    if (currentPatternId.value === id) {
+      selectPattern('click')
+    }
+  }
+
   async function toggle(): Promise<void> {
     if (!audioEngine.isReady) {
       await audioEngine.init(
         () => bpm.value,
         () => currentPattern.value,
-        handleStep,
+        (step) => { currentStep.value = step },
       )
     }
     if (isPlaying.value) {
@@ -73,10 +87,6 @@ export const useMetronomeStore = defineStore('metronome', () => {
     }
   }
 
-  function handleStep(step: number): void {
-    currentStep.value = step
-  }
-
   return {
     bpm,
     isPlaying,
@@ -87,6 +97,7 @@ export const useMetronomeStore = defineStore('metronome', () => {
     setBpm,
     setTimeSignature,
     selectPattern,
+    removeCustomPattern,
     toggle,
   }
 })
