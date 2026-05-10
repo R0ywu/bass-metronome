@@ -70,5 +70,17 @@ export const useCustomPatternStore = defineStore('customPatterns', () => {
     patterns.value.push(pattern)
   }
 
-  return { patterns, find, create, remove, add }
+  /**
+   * Apply a mutation to the pattern with the given id; no-op if not found.
+   * The mutator MUST mutate the passed object's properties — reassigning the
+   * parameter (e.g. `p => p = newPattern`) will silently do nothing because it
+   * only changes the local binding, not the array entry.
+   */
+  function update(id: string, mutator: (pattern: Pattern) => void): void {
+    const target = patterns.value.find((p) => p.id === id)
+    if (!target) return
+    mutator(target)
+  }
+
+  return { patterns, find, create, remove, add, update }
 })

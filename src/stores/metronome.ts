@@ -90,6 +90,7 @@ export const useMetronomeStore = defineStore('metronome', () => {
   return {
     bpm,
     isPlaying,
+    currentStep,
     currentBeat,
     currentPatternId,
     timeSignature,

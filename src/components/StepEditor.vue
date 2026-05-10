@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useMetronomeStore } from '../stores/metronome'
+import { useCustomPatternStore } from '../stores/customPatterns'
 import {
   ALLOWED_NUMERATORS,
   ALLOWED_DENOMINATORS,
@@ -13,40 +14,53 @@ import type { Pattern } from '../audio/types'
 
 const props = defineProps<{ pattern: Pattern }>()
 const metronome = useMetronomeStore()
+const customStore = useCustomPatternStore()
 
 const stepCount = computed(() => totalSteps(props.pattern.timeSignature[0], props.pattern.subdivision))
 
 /** Highlight grid column for the currently playing step. */
 const playingStep = computed(() => {
   if (!metronome.isPlaying) return -1
-  if (metronome.currentBeat < 0) return -1
-  return metronome.currentBeat * props.pattern.subdivision
+  return metronome.currentStep
 })
 
+function mutate(fn: (p: Pattern) => void): void {
+  customStore.update(props.pattern.id, fn)
+}
+
 function cycleStep(trackIdx: number, stepIdx: number): void {
-  const cur = props.pattern.tracks[trackIdx].steps[stepIdx] ?? 0
-  props.pattern.tracks[trackIdx].steps[stepIdx] = (cur + 1) % 3
+  mutate((p) => {
+    const cur = p.tracks[trackIdx].steps[stepIdx] ?? 0
+    p.tracks[trackIdx].steps[stepIdx] = (cur + 1) % 3
+  })
 }
 
 function setName(e: Event): void {
-  props.pattern.name = (e.target as HTMLInputElement).value || 'Untitled'
+  const value = (e.target as HTMLInputElement).value || 'Untitled'
+  mutate((p) => { p.name = value })
 }
 
 function setNumerator(e: Event): void {
   const num = parseInt((e.target as HTMLSelectElement).value, 10)
-  props.pattern.timeSignature = [num, props.pattern.timeSignature[1]]
-  props.pattern.tracks = reshapeTracks(props.pattern.tracks, totalSteps(num, props.pattern.subdivision))
+  mutate((p) => {
+    p.timeSignature = [num, p.timeSignature[1]]
+    p.tracks = reshapeTracks(p.tracks, totalSteps(num, p.subdivision))
+  })
 }
 
 function setDenominator(e: Event): void {
   const denom = parseInt((e.target as HTMLSelectElement).value, 10)
-  props.pattern.timeSignature = [props.pattern.timeSignature[0], denom]
+  mutate((p) => {
+    p.timeSignature = [p.timeSignature[0], denom]
+  })
 }
 
 function setSubdivision(e: Event): void {
   const sub = parseInt((e.target as HTMLSelectElement).value, 10)
-  props.pattern.subdivision = sub
-  props.pattern.tracks = reshapeTracks(props.pattern.tracks, totalSteps(props.pattern.timeSignature[0], sub))
+  mutate((p) => {
+    p.subdivision = sub
+    p.tracks = reshapeTracks(p.tracks, totalSteps(p.timeSignature[0], sub))
+  })
 }
 
 function onDelete(): void {
