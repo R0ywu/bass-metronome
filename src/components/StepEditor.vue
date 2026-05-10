@@ -31,7 +31,7 @@ function mutate(fn: (p: Pattern) => void): void {
 function cycleStep(trackIdx: number, stepIdx: number): void {
   mutate((p) => {
     const cur = p.tracks[trackIdx].steps[stepIdx] ?? 0
-    p.tracks[trackIdx].steps[stepIdx] = (cur + 1) % 3
+    p.tracks[trackIdx].steps[stepIdx] = (cur + 1) % 4
   })
 }
 
@@ -83,6 +83,14 @@ const SUBDIVISION_LABELS: Record<number, string> = {
   2: '2 (♪)',
   3: '3 (triplet)',
   4: '4 (16ᵗʰ)',
+  6: '6 (sextuplet)',
+}
+
+const STEP_CLASSES: Record<number, string> = {
+  0: 'bg-bg-elevated border-bg-elevated hover:border-neon-cyan/40',
+  1: 'bg-neon-cyan/40 border-neon-cyan/40',
+  2: 'bg-neon-amber border-neon-amber',
+  3: 'bg-neon-pink border-neon-pink',
 }
 </script>
 
@@ -166,20 +174,32 @@ const SUBDIVISION_LABELS: Record<number, string> = {
                 @click="cycleStep(trackIdx, stepIdx - 1)"
                 class="w-8 h-8 rounded transition border"
                 :class="[
-                  track.steps[stepIdx - 1] === 2
-                    ? 'bg-neon-pink border-neon-pink'
-                    : track.steps[stepIdx - 1] === 1
-                      ? 'bg-neon-cyan border-neon-cyan'
-                      : 'bg-bg-elevated border-bg-elevated hover:border-neon-cyan/40',
-                  playingStep === stepIdx - 1 ? 'ring-2 ring-neon-amber ring-offset-2 ring-offset-bg-panel' : '',
+                  STEP_CLASSES[track.steps[stepIdx - 1] ?? 0],
+                  playingStep === stepIdx - 1 ? 'ring-2 ring-white ring-offset-2 ring-offset-bg-panel' : '',
                 ]"
               ></button>
             </template>
           </div>
         </div>
       </div>
-      <div class="text-xs text-gray-600 mt-3 ml-16">
-        Click cell · empty → normal → <span class="text-neon-pink">accent</span> → empty
+      <div class="text-xs text-gray-600 mt-3 ml-16 flex flex-wrap items-center gap-x-4 gap-y-1">
+        <span>Click cell to cycle:</span>
+        <span class="flex items-center gap-1.5">
+          <span class="inline-block w-3 h-3 rounded bg-bg-elevated border border-bg-elevated"></span>
+          mute
+        </span>
+        <span class="flex items-center gap-1.5">
+          <span class="inline-block w-3 h-3 rounded bg-neon-cyan/40 border border-neon-cyan/40"></span>
+          weak
+        </span>
+        <span class="flex items-center gap-1.5">
+          <span class="inline-block w-3 h-3 rounded bg-neon-amber"></span>
+          medium
+        </span>
+        <span class="flex items-center gap-1.5">
+          <span class="inline-block w-3 h-3 rounded bg-neon-pink"></span>
+          strong
+        </span>
       </div>
     </div>
   </div>
