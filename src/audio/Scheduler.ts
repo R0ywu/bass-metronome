@@ -18,13 +18,25 @@ export class Scheduler {
 
   private notesInQueue: Array<{ step: number; time: number }> = []
 
+  private readonly ctx: AudioContext
+  private readonly soundBank: SoundBank
+  private readonly getBpm: () => number
+  private readonly getPattern: () => Pattern
+  private readonly onStep: StepCallback
+
   constructor(
-    private ctx: AudioContext,
-    private soundBank: SoundBank,
-    private getBpm: () => number,
-    private getPattern: () => Pattern,
-    private onStep: StepCallback,
-  ) {}
+    ctx: AudioContext,
+    soundBank: SoundBank,
+    getBpm: () => number,
+    getPattern: () => Pattern,
+    onStep: StepCallback,
+  ) {
+    this.ctx = ctx
+    this.soundBank = soundBank
+    this.getBpm = getBpm
+    this.getPattern = getPattern
+    this.onStep = onStep
+  }
 
   start(): void {
     if (this.timerId !== null) return

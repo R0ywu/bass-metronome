@@ -1,6 +1,8 @@
 import type { Pattern, Track, DrumSound } from '../audio/types'
 
 const FIXED_TRACKS: DrumSound[] = ['kick', 'snare', 'hihat']
+const VALID_SOUNDS: readonly string[] = ['click', 'kick', 'snare', 'hihat']
+const VALID_STEP_VALUES = new Set([0, 1, 2])
 export const ALLOWED_NUMERATORS = [2, 3, 4, 5, 6, 7] as const
 export const ALLOWED_DENOMINATORS = [4, 8] as const
 export const ALLOWED_SUBDIVISIONS = [1, 2, 3, 4] as const
@@ -45,20 +47,29 @@ export function isValidPattern(p: unknown): p is Pattern {
   const obj = p as Record<string, unknown>
   return (
     typeof obj.id === 'string' &&
+    obj.id.length > 0 &&
     typeof obj.name === 'string' &&
+    obj.name.length > 0 &&
     Array.isArray(obj.timeSignature) &&
     obj.timeSignature.length === 2 &&
     typeof obj.timeSignature[0] === 'number' &&
+    obj.timeSignature[0] > 0 &&
     typeof obj.timeSignature[1] === 'number' &&
+    obj.timeSignature[1] > 0 &&
     typeof obj.subdivision === 'number' &&
+    obj.subdivision > 0 &&
     Array.isArray(obj.tracks) &&
-    obj.tracks.every(
-      (t) =>
-        t &&
-        typeof t === 'object' &&
-        typeof (t as Track).sound === 'string' &&
-        Array.isArray((t as Track).steps),
-    )
+    obj.tracks.length > 0 &&
+    obj.tracks.every((t) => {
+      if (!t || typeof t !== 'object') return false
+      const track = t as Track
+      return (
+        typeof track.sound === 'string' &&
+        VALID_SOUNDS.includes(track.sound) &&
+        Array.isArray(track.steps) &&
+        track.steps.every((v) => typeof v === 'number' && VALID_STEP_VALUES.has(v))
+      )
+    })
   )
 }
 

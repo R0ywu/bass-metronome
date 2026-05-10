@@ -8,9 +8,11 @@ import type { DrumSound } from './types'
  * - hihat: high-pass filtered short noise burst
  */
 export class SoundBank {
-  private noiseBuffer: AudioBuffer
+  private readonly ctx: AudioContext
+  private readonly noiseBuffer: AudioBuffer
 
-  constructor(private ctx: AudioContext) {
+  constructor(ctx: AudioContext) {
+    this.ctx = ctx
     this.noiseBuffer = this.createNoiseBuffer()
   }
 
