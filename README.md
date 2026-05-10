@@ -1,5 +1,15 @@
 # bass-metronome
 
+[![Deploy](https://github.com/R0ywu/bass-metronome/actions/workflows/deploy.yml/badge.svg)](https://github.com/R0ywu/bass-metronome/actions/workflows/deploy.yml)
+[![Version](https://img.shields.io/github/v/tag/R0ywu/bass-metronome?label=version)](https://github.com/R0ywu/bass-metronome/tags)
+[![License: MIT](https://img.shields.io/github/license/R0ywu/bass-metronome)](LICENSE)
+
+![Vue](https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
+![Pinia](https://img.shields.io/badge/Pinia-3-FFD859?logo=pinia&logoColor=black)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3-06B6D4?logo=tailwindcss&logoColor=white)
+
 A pattern-driven metronome for bass practice on Mac, built with Vue 3 + Vite.
 
 🎵 **Live demo**: https://r0ywu.github.io/bass-metronome/
@@ -56,3 +66,7 @@ src/
 ├── stores/       # Pinia stores (metronome state, custom patterns)
 └── App.vue
 ```
+
+## License
+
+[MIT](LICENSE) © roywu
