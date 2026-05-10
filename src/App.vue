@@ -3,6 +3,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { useMetronomeStore } from './stores/metronome'
 import BpmControl from './components/BpmControl.vue'
 import TimeSignature from './components/TimeSignature.vue'
+import PatternSelector from './components/PatternSelector.vue'
 import PlayButton from './components/PlayButton.vue'
 import BeatIndicator from './components/BeatIndicator.vue'
 
@@ -39,11 +40,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
           METRONOME
         </h1>
         <p class="text-xs text-gray-500 uppercase tracking-wider mt-2">
-          Phase 1 · Web Audio Engine
+          Phase 2 · Drum Patterns
         </p>
       </header>
 
       <BpmControl />
+
+      <PatternSelector />
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
         <TimeSignature />
