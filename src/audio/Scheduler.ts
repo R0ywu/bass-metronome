@@ -1,5 +1,5 @@
 import { SoundBank } from './SoundBank'
-import type { Pattern, StepCallback } from './types'
+import type { Intensity, Pattern, StepCallback } from './types'
 
 /**
  * Lookahead Scheduler — based on Chris Wilson's pattern:
@@ -69,9 +69,8 @@ export class Scheduler {
     this.notesInQueue.push({ step, time })
     for (const track of pattern.tracks) {
       const value = track.steps[step] ?? 0
-      if (value > 0) {
-        this.soundBank.play(track.sound, time, value === 2)
-      }
+      if (value < 1 || value > 3) continue
+      this.soundBank.play(track.sound, time, value as Intensity)
     }
   }
 
