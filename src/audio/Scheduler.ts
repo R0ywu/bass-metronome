@@ -44,15 +44,17 @@ export class Scheduler {
 
   private scheduler(): void {
     while (this.nextNoteTime < this.ctx.currentTime + this.scheduleAheadTime) {
-      this.scheduleStep(this.currentStep, this.nextNoteTime)
-      this.advance()
+      // Snapshot the pattern once per tick so scheduleStep + advance stay
+      // consistent even if the user switches pattern mid-tick.
+      const pattern = this.getPattern()
+      this.scheduleStep(pattern, this.currentStep, this.nextNoteTime)
+      this.advance(pattern)
     }
     this.timerId = window.setTimeout(() => this.scheduler(), this.lookaheadInterval)
   }
 
-  private scheduleStep(step: number, time: number): void {
+  private scheduleStep(pattern: Pattern, step: number, time: number): void {
     this.notesInQueue.push({ step, time })
-    const pattern = this.getPattern()
     for (const track of pattern.tracks) {
       const value = track.steps[step] ?? 0
       if (value > 0) {
@@ -61,8 +63,7 @@ export class Scheduler {
     }
   }
 
-  private advance(): void {
-    const pattern = this.getPattern()
+  private advance(pattern: Pattern): void {
     const stepDuration = 60.0 / this.getBpm() / pattern.subdivision
     this.nextNoteTime += stepDuration
     const totalSteps = pattern.timeSignature[0] * pattern.subdivision

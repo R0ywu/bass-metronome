@@ -82,7 +82,7 @@ export const useMetronomeStore = defineStore('metronome', () => {
       isPlaying.value = false
       currentStep.value = -1
     } else {
-      audioEngine.start()
+      await audioEngine.start()
       isPlaying.value = true
     }
   }

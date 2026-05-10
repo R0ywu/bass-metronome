@@ -25,8 +25,14 @@ export class AudioEngine {
     this.scheduler = new Scheduler(this.ctx, soundBank, getBpm, getPattern, onStep)
   }
 
-  start(): void {
-    this.scheduler?.start()
+  async start(): Promise<void> {
+    if (!this.ctx || !this.scheduler) return
+    // Browsers may suspend the AudioContext when the tab loses focus;
+    // resume before resuming playback so timing stays accurate.
+    if (this.ctx.state === 'suspended') {
+      await this.ctx.resume()
+    }
+    this.scheduler.start()
   }
 
   stop(): void {
