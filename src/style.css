@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #0a0a0f;
+    color: #e5e7eb;
+    font-family: 'JetBrains Mono', 'Menlo', 'Monaco', monospace;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+  }
+
+  #app {
+    min-height: 100vh;
+  }
+
+  button {
+    cursor: pointer;
+    font-family: inherit;
+  }
+}
+
+@layer utilities {
+  .glow-cyan {
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.4), 0 0 40px rgba(0, 240, 255, 0.2);
+  }
+  .glow-pink {
+    box-shadow: 0 0 20px rgba(255, 0, 234, 0.4), 0 0 40px rgba(255, 0, 234, 0.2);
+  }
+  .glow-green {
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.4), 0 0 40px rgba(0, 255, 136, 0.2);
+  }
+  .text-glow-cyan {
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.7);
+  }
+}
