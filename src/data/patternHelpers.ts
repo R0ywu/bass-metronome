@@ -5,7 +5,7 @@ const VALID_SOUNDS: readonly string[] = ['click', 'kick', 'snare', 'hihat']
 const VALID_STEP_VALUES = new Set([0, 1, 2, 3])
 export const ALLOWED_NUMERATORS = [2, 3, 4, 5, 6, 7] as const
 export const ALLOWED_DENOMINATORS = [4, 8] as const
-export const ALLOWED_SUBDIVISIONS = [1, 2, 3, 4] as const
+export const ALLOWED_SUBDIVISIONS = [1, 2, 3, 4, 6] as const
 
 /** Total step count for a given time signature numerator and subdivision. */
 export function totalSteps(beatsPerBar: number, subdivision: number): number {
