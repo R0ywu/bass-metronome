@@ -18,19 +18,19 @@ export const useMetronomeStore = defineStore('metronome', () => {
 
   // Pattern state — Click is the default, time signature defaults to 4/4
   const currentPatternId = ref<string>('click')
-  const clickBeatsPerBar = ref(4)
+  const clickTimeSignature = ref<TimeSignature>([4, 4])
 
   const customStore = useCustomPatternStore()
 
   const currentPattern = computed<Pattern>(() => {
     if (currentPatternId.value === 'click') {
-      return makeClickPattern(clickBeatsPerBar.value)
+      return makeClickPattern(clickTimeSignature.value)
     }
     const preset = STATIC_PATTERNS.find((p) => p.id === currentPatternId.value)
     if (preset) return preset
     const custom = customStore.find(currentPatternId.value)
     if (custom) return custom
-    return makeClickPattern(clickBeatsPerBar.value)
+    return makeClickPattern(clickTimeSignature.value)
   })
 
   const timeSignature = computed<TimeSignature>(() => currentPattern.value.timeSignature)
@@ -51,7 +51,7 @@ export const useMetronomeStore = defineStore('metronome', () => {
    * (no other preset adapts to arbitrary time signatures).
    */
   function setTimeSignature(sig: TimeSignature): void {
-    clickBeatsPerBar.value = sig[0]
+    clickTimeSignature.value = [sig[0], sig[1]]
     currentPatternId.value = 'click'
     currentStep.value = -1
   }

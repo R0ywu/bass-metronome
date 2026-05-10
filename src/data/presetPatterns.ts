@@ -4,11 +4,12 @@ import type { Pattern } from '../audio/types'
  * Click — adapts to current time signature: accent on beat 1, normal on the rest.
  * Generated dynamically because the user can pick any time signature.
  */
-export function makeClickPattern(beatsPerBar: number): Pattern {
+export function makeClickPattern(timeSignature: [number, number]): Pattern {
+  const beatsPerBar = timeSignature[0]
   return {
     id: 'click',
     name: 'Click',
-    timeSignature: [beatsPerBar, 4],
+    timeSignature,
     subdivision: 1,
     tracks: [
       {
