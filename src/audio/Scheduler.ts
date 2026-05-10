@@ -1,38 +1,34 @@
 import { SoundBank } from './SoundBank'
-import type { BeatCallback } from './types'
+import type { Pattern, StepCallback } from './types'
 
 /**
  * Lookahead Scheduler — based on Chris Wilson's pattern:
  * https://www.html5rocks.com/en/tutorials/audio/scheduling/
  *
- * Why: setInterval/setTimeout drift due to JS event loop jitter.
- * Solution: schedule notes ahead of time on the precise AudioContext clock,
- * and use a coarse setTimeout (every 25ms) only to refill the schedule queue.
+ * Pattern-driven, step-based: each tick of the inner clock advances by one
+ * subdivision step. The current Pattern decides which tracks fire at each step.
  */
 export class Scheduler {
   private timerId: number | null = null
   private nextNoteTime = 0
-  private currentBeatInBar = 0
+  private currentStep = 0
 
-  /** How far ahead to schedule audio (seconds). */
   private readonly scheduleAheadTime = 0.1
-  /** How frequently to call the scheduler function (ms). */
   private readonly lookaheadInterval = 25
 
-  /** Queue of upcoming beats — used by UI to flash on time. */
-  private notesInQueue: Array<{ beatInBar: number; time: number }> = []
+  private notesInQueue: Array<{ step: number; time: number }> = []
 
   constructor(
     private ctx: AudioContext,
     private soundBank: SoundBank,
     private getBpm: () => number,
-    private getBeatsPerBar: () => number,
-    private onBeat: BeatCallback,
+    private getPattern: () => Pattern,
+    private onStep: StepCallback,
   ) {}
 
   start(): void {
     if (this.timerId !== null) return
-    this.currentBeatInBar = 0
+    this.currentStep = 0
     this.nextNoteTime = this.ctx.currentTime + 0.05
     this.scheduler()
     this.uiTick()
@@ -48,27 +44,33 @@ export class Scheduler {
 
   private scheduler(): void {
     while (this.nextNoteTime < this.ctx.currentTime + this.scheduleAheadTime) {
-      this.scheduleNote(this.currentBeatInBar, this.nextNoteTime)
+      this.scheduleStep(this.currentStep, this.nextNoteTime)
       this.advance()
     }
     this.timerId = window.setTimeout(() => this.scheduler(), this.lookaheadInterval)
   }
 
-  private scheduleNote(beatInBar: number, time: number): void {
-    this.notesInQueue.push({ beatInBar, time })
-    const isAccent = beatInBar === 0
-    this.soundBank.play(isAccent ? 'accent' : 'normal', time)
+  private scheduleStep(step: number, time: number): void {
+    this.notesInQueue.push({ step, time })
+    const pattern = this.getPattern()
+    for (const track of pattern.tracks) {
+      const value = track.steps[step] ?? 0
+      if (value > 0) {
+        this.soundBank.play(track.sound, time, value === 2)
+      }
+    }
   }
 
   private advance(): void {
-    const secondsPerBeat = 60.0 / this.getBpm()
-    this.nextNoteTime += secondsPerBeat
-    const beatsPerBar = this.getBeatsPerBar()
-    this.currentBeatInBar = (this.currentBeatInBar + 1) % beatsPerBar
+    const pattern = this.getPattern()
+    const stepDuration = 60.0 / this.getBpm() / pattern.subdivision
+    this.nextNoteTime += stepDuration
+    const totalSteps = pattern.timeSignature[0] * pattern.subdivision
+    this.currentStep = (this.currentStep + 1) % totalSteps
   }
 
   /**
-   * Visual tick — fires onBeat callback at the precise moment a queued note
+   * Visual tick — fires onStep callback at the precise moment a queued note
    * crosses the current audio clock. Decoupled from audio scheduling so UI
    * lag never affects timing.
    */
@@ -77,7 +79,7 @@ export class Scheduler {
     const now = this.ctx.currentTime
     while (this.notesInQueue.length && this.notesInQueue[0].time <= now) {
       const note = this.notesInQueue.shift()!
-      this.onBeat(note.beatInBar)
+      this.onStep(note.step)
     }
     requestAnimationFrame(this.uiTick)
   }

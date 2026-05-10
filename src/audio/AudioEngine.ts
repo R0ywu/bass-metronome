@@ -1,6 +1,6 @@
 import { Scheduler } from './Scheduler'
 import { SoundBank } from './SoundBank'
-import type { BeatCallback } from './types'
+import type { Pattern, StepCallback } from './types'
 
 /**
  * Singleton facade for audio playback.
@@ -12,8 +12,8 @@ export class AudioEngine {
 
   async init(
     getBpm: () => number,
-    getBeatsPerBar: () => number,
-    onBeat: BeatCallback,
+    getPattern: () => Pattern,
+    onStep: StepCallback,
   ): Promise<void> {
     if (this.ctx) return
 
@@ -22,7 +22,7 @@ export class AudioEngine {
       await this.ctx.resume()
     }
     const soundBank = new SoundBank(this.ctx)
-    this.scheduler = new Scheduler(this.ctx, soundBank, getBpm, getBeatsPerBar, onBeat)
+    this.scheduler = new Scheduler(this.ctx, soundBank, getBpm, getPattern, onStep)
   }
 
   start(): void {
