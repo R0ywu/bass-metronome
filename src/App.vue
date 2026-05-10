@@ -2,11 +2,10 @@
 import { computed, onMounted, onUnmounted } from 'vue'
 import { useMetronomeStore } from './stores/metronome'
 import { useCustomPatternStore } from './stores/customPatterns'
-import BpmControl from './components/BpmControl.vue'
+import TempoControl from './components/TempoControl.vue'
 import TimeSignature from './components/TimeSignature.vue'
 import PatternSelector from './components/PatternSelector.vue'
 import StepEditor from './components/StepEditor.vue'
-import PlayButton from './components/PlayButton.vue'
 import BeatIndicator from './components/BeatIndicator.vue'
 
 const store = useMetronomeStore()
@@ -50,7 +49,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
         </p>
       </header>
 
-      <BpmControl />
+      <TempoControl />
 
       <PatternSelector />
 
@@ -59,10 +58,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
         <TimeSignature />
         <BeatIndicator />
-      </div>
-
-      <div class="flex justify-center pt-4">
-        <PlayButton />
       </div>
 
       <footer class="text-center text-xs text-gray-600 pt-6 space-y-1">
